@@ -235,22 +235,41 @@ static int cron_matches(const CronSchedule *sc, const struct tm *t) {
 }
 
 /*
- * Iterate second-by-second (minute granularity) in UTC. This correctly
- * handles spring-forward gaps (no local time maps to the missing hour)
- * and avoids mktime DST normalization surprises.
+ * Walk UTC minute-by-minute and handle DST transitions:
+ *
+ *   Spring-forward: no UTC second maps to the nonexistent local hour, so
+ *   the gap is skipped automatically.
+ *
+ *   Fall-back: the same wall-clock minute appears twice (once as DST, once
+ *   as standard time). We emit only the first (DST) occurrence by checking
+ *   whether the same broken-down time with isdst=1 resolves to an earlier
+ *   UTC — if so this is the duplicate and we skip it.
  */
 static int cron_next_after(const char *expr, time_t from,
                             time_t *result, char *eb, int esz) {
     CronSchedule sc;
     if (parse_cron(expr, &sc, eb, esz)) return -1;
 
-    /* first candidate: next whole minute strictly after from */
     time_t t = (from / 60 + 1) * 60;
     int cap = 5 * 366 * 24 * 60;
     for (int i = 0; i < cap; i++, t += 60) {
         struct tm local;
         localtime_r(&t, &local);
-        if (cron_matches(&sc, &local)) { *result = t; return 0; }
+        if (!cron_matches(&sc, &local)) continue;
+
+        /* Fall-back duplicate check: if isdst=0 and the same wall-clock
+         * time exists earlier as a DST time, this is the second occurrence. */
+        if (local.tm_isdst == 0) {
+            struct tm dst = local;
+            dst.tm_isdst = 1;
+            time_t t_dst = mktime(&dst);
+            if (t_dst != (time_t)-1 && t_dst < t &&
+                    dst.tm_hour == local.tm_hour &&
+                    dst.tm_min  == local.tm_min  &&
+                    dst.tm_mday == local.tm_mday)
+                continue;
+        }
+        *result = t; return 0;
     }
     snprintf(eb, esz, "no cron match within 5 years: %s", expr);
     return -1;
