@@ -1,0 +1,14 @@
+honker.c
+Copyright 2026 Tim Millard
+
+This project is a C port of honker (https://github.com/russellromney/honker)
+by Russell Romney, licensed under the Apache License, Version 2.0.
+
+The SQL schema, table design, query logic, function names, and overall
+architecture are derived from the original Rust implementation. The C
+translation, test suite, and build system are original work.
+
+Original work:
+  Copyright 2026 Russell Romney
+  Licensed under the Apache License, Version 2.0
+  https://github.com/russellromney/honker
