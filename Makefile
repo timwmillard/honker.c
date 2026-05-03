@@ -32,7 +32,7 @@ sqlite: libs/sqlite3.h
 $(LIB): honker.c libs/sqlite3.h
 	$(CC) $(CFLAGS) $(LDFLAGS) -I$(SQLITE_INC) -o $@ $<
 
-test_honker: test_honker.c libs/sqlite3.h
+test_honker: test_honker.c libs/sqlite3.h $(LIB)
 	$(CC) $(CFLAGS) -DSQLITE_ENABLE_LOAD_EXTENSION -I$(SQLITE_INC) \
 	    -o $@ test_honker.c $(SQLITE_SRC)
 
