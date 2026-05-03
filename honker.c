@@ -40,6 +40,8 @@ SQLITE_EXTENSION_INIT1
 #include <time.h>
 #include <stdint.h>
 
+#define UNUSED(x) (void)(x)
+
 /* ------------------------------------------------------------------ */
 /* Schema DDL                                                           */
 /* ------------------------------------------------------------------ */
@@ -294,6 +296,8 @@ static void notify_wake(sqlite3 *db, const char *channel) {
 /* ------------------------------------------------------------------ */
 
 static void fn_bootstrap(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
+    UNUSED(argv);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     char *err = NULL;
     if (sqlite3_exec(db, BOOTSTRAP_SQL, NULL, NULL, &err) != SQLITE_OK) {
@@ -309,6 +313,7 @@ static void fn_bootstrap(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
 /* ------------------------------------------------------------------ */
 
 static void fn_notify(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     const char *ch = (const char *)sqlite3_value_text(argv[0]);
     const char *pl = (const char *)sqlite3_value_text(argv[1]);
@@ -330,6 +335,7 @@ static void fn_notify(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
 /* ------------------------------------------------------------------ */
 
 static void fn_enqueue(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     const char    *queue    = (const char *)sqlite3_value_text(argv[0]);
     const char    *payload  = (const char *)sqlite3_value_text(argv[1]);
@@ -377,6 +383,7 @@ static void fn_enqueue(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
 /* ------------------------------------------------------------------ */
 
 static void fn_claim_batch(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     const char    *queue   = (const char *)sqlite3_value_text(argv[0]);
     const char    *wid     = (const char *)sqlite3_value_text(argv[1]);
@@ -431,6 +438,7 @@ static void fn_claim_batch(sqlite3_context *ctx, int argc, sqlite3_value **argv)
 /* ------------------------------------------------------------------ */
 
 static void fn_ack(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_stmt *s;
     sqlite3_prepare_v2(db,
@@ -448,6 +456,7 @@ static void fn_ack(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
 /* ------------------------------------------------------------------ */
 
 static void fn_ack_batch(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_stmt *s;
     sqlite3_prepare_v2(db,
@@ -466,6 +475,7 @@ static void fn_ack_batch(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
 /* ------------------------------------------------------------------ */
 
 static void fn_retry(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_int64  job_id  = sqlite3_value_int64(argv[0]);
     const char    *wid     = (const char *)sqlite3_value_text(argv[1]);
@@ -540,6 +550,7 @@ static void fn_retry(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
 /* ------------------------------------------------------------------ */
 
 static void fn_fail(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_int64  job_id = sqlite3_value_int64(argv[0]);
     const char    *wid    = (const char *)sqlite3_value_text(argv[1]);
@@ -591,6 +602,7 @@ static void fn_fail(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
 /* ------------------------------------------------------------------ */
 
 static void fn_heartbeat(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_stmt *s;
     sqlite3_prepare_v2(db,
@@ -609,6 +621,7 @@ static void fn_heartbeat(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
 /* ------------------------------------------------------------------ */
 
 static void fn_sweep_expired(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     const char *queue = (const char *)sqlite3_value_text(argv[0]);
 
@@ -650,6 +663,7 @@ static void fn_sweep_expired(sqlite3_context *ctx, int argc, sqlite3_value **arg
 /* ------------------------------------------------------------------ */
 
 static void fn_lock_acquire(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     const char    *name  = (const char *)sqlite3_value_text(argv[0]);
     const char    *owner = (const char *)sqlite3_value_text(argv[1]);
@@ -689,6 +703,7 @@ static void fn_lock_acquire(sqlite3_context *ctx, int argc, sqlite3_value **argv
 /* ------------------------------------------------------------------ */
 
 static void fn_lock_release(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_stmt *s;
     sqlite3_prepare_v2(db,
@@ -705,6 +720,7 @@ static void fn_lock_release(sqlite3_context *ctx, int argc, sqlite3_value **argv
 /* ------------------------------------------------------------------ */
 
 static void fn_rate_limit_try(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     const char    *name  = (const char *)sqlite3_value_text(argv[0]);
     sqlite3_int64  limit = sqlite3_value_int64(argv[1]);
@@ -742,6 +758,7 @@ static void fn_rate_limit_try(sqlite3_context *ctx, int argc, sqlite3_value **ar
 /* ------------------------------------------------------------------ */
 
 static void fn_rate_limit_sweep(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_stmt *s;
     sqlite3_prepare_v2(db,
@@ -767,6 +784,7 @@ static void scheduler_wake(sqlite3 *db) {
 }
 
 static void fn_scheduler_register(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     const char    *name     = (const char *)sqlite3_value_text(argv[0]);
     const char    *queue    = (const char *)sqlite3_value_text(argv[1]);
@@ -806,6 +824,7 @@ static void fn_scheduler_register(sqlite3_context *ctx, int argc, sqlite3_value 
 }
 
 static void fn_scheduler_unregister(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_stmt *s;
     sqlite3_prepare_v2(db,
@@ -818,6 +837,8 @@ static void fn_scheduler_unregister(sqlite3_context *ctx, int argc, sqlite3_valu
 }
 
 static void fn_scheduler_soonest(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
+    UNUSED(argv);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_stmt *s;
     sqlite3_prepare_v2(db,
@@ -830,6 +851,7 @@ static void fn_scheduler_soonest(sqlite3_context *ctx, int argc, sqlite3_value *
 }
 
 static void fn_scheduler_tick(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_int64 now_unix = sqlite3_value_int64(argv[0]);
 
@@ -927,6 +949,7 @@ static void fn_scheduler_tick(sqlite3_context *ctx, int argc, sqlite3_value **ar
 /* ------------------------------------------------------------------ */
 
 static void fn_result_save(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_int64  job_id = sqlite3_value_int64(argv[0]);
     const char    *value  = (const char *)sqlite3_value_text(argv[1]);
@@ -957,6 +980,7 @@ static void fn_result_save(sqlite3_context *ctx, int argc, sqlite3_value **argv)
 }
 
 static void fn_result_get(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_stmt *s;
     sqlite3_prepare_v2(db,
@@ -977,6 +1001,8 @@ static void fn_result_get(sqlite3_context *ctx, int argc, sqlite3_value **argv) 
 }
 
 static void fn_result_sweep(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
+    UNUSED(argv);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_stmt *s;
     sqlite3_prepare_v2(db,
@@ -991,6 +1017,7 @@ static void fn_result_sweep(sqlite3_context *ctx, int argc, sqlite3_value **argv
 /* ------------------------------------------------------------------ */
 
 static void fn_stream_publish(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     const char *topic   = (const char *)sqlite3_value_text(argv[0]);
     int         kn      = sqlite3_value_type(argv[1]) == SQLITE_NULL;
@@ -1021,6 +1048,7 @@ static void fn_stream_publish(sqlite3_context *ctx, int argc, sqlite3_value **ar
 }
 
 static void fn_stream_read_since(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     const char    *topic  = (const char *)sqlite3_value_text(argv[0]);
     sqlite3_int64  offset = sqlite3_value_int64(argv[1]);
@@ -1062,6 +1090,7 @@ static void fn_stream_read_since(sqlite3_context *ctx, int argc, sqlite3_value *
 }
 
 static void fn_stream_save_offset(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_stmt *s;
     sqlite3_prepare_v2(db,
@@ -1077,6 +1106,7 @@ static void fn_stream_save_offset(sqlite3_context *ctx, int argc, sqlite3_value 
 }
 
 static void fn_stream_get_offset(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     sqlite3 *db = sqlite3_context_db_handle(ctx);
     sqlite3_stmt *s;
     sqlite3_prepare_v2(db,
@@ -1095,6 +1125,7 @@ static void fn_stream_get_offset(sqlite3_context *ctx, int argc, sqlite3_value *
 /* ------------------------------------------------------------------ */
 
 static void fn_cron_next_after(sqlite3_context *ctx, int argc, sqlite3_value **argv) {
+    UNUSED(argc);
     const char    *expr = (const char *)sqlite3_value_text(argv[0]);
     sqlite3_int64  from = sqlite3_value_int64(argv[1]);
     char eb[256]; time_t result;
