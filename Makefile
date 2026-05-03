@@ -3,27 +3,38 @@ CFLAGS  = -O2 -Wall -Wextra
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
-  LIB = libhonker.dylib
+  LIB     = libhonker.dylib
   LDFLAGS = -dynamiclib -undefined dynamic_lookup
-  # Use the Homebrew SQLite headers so the extension ABI matches Python's sqlite3.
-  SQLITE_INC := $(shell ls -d /opt/homebrew/Cellar/sqlite/*/include 2>/dev/null | sort -V | tail -1)
-  ifneq ($(SQLITE_INC),)
-    CFLAGS += -I$(SQLITE_INC)
-  endif
 else
-  LIB = libhonker.so
+  LIB     = libhonker.so
   LDFLAGS = -fPIC -shared
 endif
 
-.PHONY: all clean test pytest
+SQLITE_VERSION = 3530000
+SQLITE_YEAR    = 2026
+SQLITE_URL     = https://www.sqlite.org/$(SQLITE_YEAR)/sqlite-amalgamation-$(SQLITE_VERSION).zip
+SQLITE_INC     = libs
+SQLITE_SRC     = libs/sqlite3.c
+
+.PHONY: all clean test pytest sqlite examples
 
 all: $(LIB)
 
-$(LIB): honker.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
+# Download the SQLite amalgamation into libs/.
+libs/sqlite3.h:
+	mkdir -p libs
+	curl -fsSL -o /tmp/sqlite-amal.zip $(SQLITE_URL)
+	cd libs && unzip -jo /tmp/sqlite-amal.zip
+	rm /tmp/sqlite-amal.zip
 
-test_honker: test_honker.c $(LIB)
-	$(CC) $(CFLAGS) -I/opt/local/include -o $@ test_honker.c -L/opt/local/lib -lsqlite3
+sqlite: libs/sqlite3.h
+
+$(LIB): honker.c libs/sqlite3.h
+	$(CC) $(CFLAGS) $(LDFLAGS) -I$(SQLITE_INC) -o $@ $<
+
+test_honker: test_honker.c libs/sqlite3.h
+	$(CC) $(CFLAGS) -DSQLITE_ENABLE_LOAD_EXTENSION -I$(SQLITE_INC) \
+	    -o $@ test_honker.c $(SQLITE_SRC)
 
 test: test_honker
 	./test_honker
@@ -31,5 +42,15 @@ test: test_honker
 pytest: $(LIB)
 	.venv/bin/pytest
 
+examples/worker_queue: examples/worker_queue.c libs/sqlite3.h
+	$(CC) $(CFLAGS) -DSQLITE_ENABLE_LOAD_EXTENSION -I$(SQLITE_INC) \
+	    -o $@ examples/worker_queue.c $(SQLITE_SRC)
+
+examples/pubsub: examples/pubsub.c libs/sqlite3.h
+	$(CC) $(CFLAGS) -DSQLITE_ENABLE_LOAD_EXTENSION -I$(SQLITE_INC) \
+	    -o $@ examples/pubsub.c $(SQLITE_SRC)
+
+examples: examples/worker_queue examples/pubsub
+
 clean:
-	rm -f $(LIB) test_honker
+	rm -f $(LIB) test_honker examples/worker_queue examples/pubsub

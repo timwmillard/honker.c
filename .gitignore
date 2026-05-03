@@ -3,4 +3,7 @@
 /libhonker.dylib
 /libhonker.so
 /test_honker
-
+/examples/worker_queue
+/examples/pubsub
+/libs/
+/.venv/
