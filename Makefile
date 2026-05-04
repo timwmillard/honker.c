@@ -50,7 +50,15 @@ examples/pubsub: examples/pubsub.c libs/sqlite3.h
 	$(CC) $(CFLAGS) -DSQLITE_ENABLE_LOAD_EXTENSION -I$(SQLITE_INC) \
 	    -o $@ examples/pubsub.c $(SQLITE_SRC)
 
-examples: examples/worker_queue examples/pubsub
+examples/stream_replay: examples/stream_replay.c libs/sqlite3.h
+	$(CC) $(CFLAGS) -DSQLITE_ENABLE_LOAD_EXTENSION -I$(SQLITE_INC) \
+	    -o $@ examples/stream_replay.c $(SQLITE_SRC)
+
+examples/scheduler: examples/scheduler.c libs/sqlite3.h
+	$(CC) $(CFLAGS) -DSQLITE_ENABLE_LOAD_EXTENSION -I$(SQLITE_INC) \
+	    -o $@ examples/scheduler.c $(SQLITE_SRC)
+
+examples: examples/worker_queue examples/pubsub examples/stream_replay examples/scheduler
 
 clean:
-	rm -f $(LIB) test_honker examples/worker_queue examples/pubsub
+	rm -f $(LIB) test_honker examples/worker_queue examples/pubsub examples/stream_replay examples/scheduler
